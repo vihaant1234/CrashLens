@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-pitch: #07080a;
+  --bg-card: #0d0f16;
+  --bg-panel: #0a0b10;
+  --border-cad: rgba(255, 237, 214, 0.08);
+  --border-cad-bright: rgba(255, 237, 214, 0.20);
+  --accent-amber: #ff8539;
+  --accent-cyan: #38bdf8;
+  --text-cream: #ffedd6;
+  --text-muted: #94a3b8;
+  --radar-green: #00ff88;
+  --radar-red: #ff2a55;
+  --radar-amber: #ffaa40;
+  --font-sans: Inter, Geist, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", "Outfit Mono", "JetBrains Mono", ui-monospace, monospace;
+}
+
+html,
+body {
+  background-color: var(--bg-pitch);
+  color: var(--text-cream);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.radar-shell-main {
+  min-height: 0;
+}
+
+@media (max-width: 900px) {
+  .radar-side-rail {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: min(24rem, calc(100vw - 1rem));
+  }
+
+  .radar-side-rail.is-collapsed {
+    width: 2.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .radar-side-rail:not(.is-collapsed) {
+    width: min(24rem, calc(100vw - 1rem));
+  }
+}
+
+/* CAD Hairline Grid Background */
+.bg-cad-grid {
+  background-image: 
+    linear-gradient(to right, rgba(255, 237, 214, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 237, 214, 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Sub-grid micro dots */
+.bg-cad-dots {
+  background-image: radial-gradient(rgba(255, 237, 214, 0.08) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* CAD Technical Caliper Corner Brackets */
+.cad-corner-tl {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 12px;
+  height: 12px;
+  border-top: 1.5px solid rgba(255, 133, 57, 0.6);
+  border-left: 1.5px solid rgba(255, 133, 57, 0.6);
+  pointer-events: none;
+}
+
+.cad-corner-tr {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 12px;
+  height: 12px;
+  border-top: 1.5px solid rgba(255, 133, 57, 0.6);
+  border-right: 1.5px solid rgba(255, 133, 57, 0.6);
+  pointer-events: none;
+}
+
+.cad-corner-bl {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  width: 12px;
+  height: 12px;
+  border-bottom: 1.5px solid rgba(255, 133, 57, 0.6);
+  border-left: 1.5px solid rgba(255, 133, 57, 0.6);
+  pointer-events: none;
+}
+
+.cad-corner-br {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 12px;
+  height: 12px;
+  border-bottom: 1.5px solid rgba(255, 133, 57, 0.6);
+  border-right: 1.5px solid rgba(255, 133, 57, 0.6);
+  pointer-events: none;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #07080a;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 237, 214, 0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 133, 57, 0.4);
+}
