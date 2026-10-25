@@ -120,9 +120,11 @@ export function TopologyNodeItem({
       height={nodeHeight}
       className="overflow-visible"
     >
-      <div
+      <button
+        type="button"
         onClick={() => onSelect?.(node.id)}
-        className={`group relative flex h-full w-full cursor-pointer flex-col justify-between rounded-lg border bg-[#0d0f16]/92 p-2 backdrop-blur-md transition-all duration-300 select-none hover:scale-[1.03] ${cfg.borderCss} ${
+        aria-label={`Inspect ${node.name}, status ${status}, p99 latency ${currentP99} milliseconds`}
+        className={`group relative flex h-full w-full cursor-pointer flex-col justify-between rounded-lg border bg-[#0d0f16]/92 p-2 text-left backdrop-blur-md transition-all duration-300 select-none hover:scale-[1.03] ${cfg.borderCss} ${
           isSelected ? 'ring-1 ring-accent-amber' : criticalRing
         }`}
       >
@@ -198,7 +200,7 @@ export function TopologyNodeItem({
             </span>
           </div>
         </div>
-      </div>
+      </button>
     </foreignObject>
   );
 }

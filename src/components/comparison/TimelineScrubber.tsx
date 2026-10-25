@@ -29,10 +29,10 @@ export function TimelineScrubber({
   return (
     <div className="border-t border-white/10 bg-black/40 px-4 py-3">
       <div className="flex items-center gap-3">
-        <button type="button" onClick={onTogglePlay} className="rounded border border-white/15 p-2 text-text-cream hover:border-accent-amber/50">
+        <button type="button" onClick={onTogglePlay} aria-label={isPlaying ? 'Pause timeline' : 'Play timeline'} className="rounded border border-white/15 p-2 text-text-cream hover:border-accent-amber/50">
           {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
         </button>
-        <button type="button" onClick={onReplay} className="rounded border border-white/15 p-2 text-text-muted hover:text-text-cream" title="Replay timeline">
+        <button type="button" onClick={onReplay} aria-label="Replay timeline" className="rounded border border-white/15 p-2 text-text-muted hover:text-text-cream" title="Replay timeline">
           <RotateCcw className="h-4 w-4" />
         </button>
         <div className="flex-1">

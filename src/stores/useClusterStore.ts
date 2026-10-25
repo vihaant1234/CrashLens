@@ -95,6 +95,7 @@ export const useClusterStore = create<ClusterStoreState>((set, get) => ({
   injectIncident: (scenarioId: ScenarioId) => {
     const simulator = getClusterSimulator();
     simulator.injectIncident(scenarioId);
+    usePredictionStore.getState().clearPrediction();
     set({ activeIncident: simulator.getActiveIncident() });
   },
 

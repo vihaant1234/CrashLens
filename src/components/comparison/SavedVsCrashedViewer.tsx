@@ -34,8 +34,17 @@ export function SavedVsCrashedViewer({ scenarioId, onClose }: SavedVsCrashedView
   }, [isPlaying, max]);
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 p-3 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Saved versus crashed counterfactual timeline">
-      <section className="flex max-h-[95vh] w-full max-w-7xl flex-col overflow-hidden rounded-xl border border-border-cad-bright bg-bg-panel shadow-2xl">
+    <div
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 p-3 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Saved versus crashed counterfactual timeline"
+      onClick={onClose}
+    >
+      <section
+        className="flex max-h-[95vh] w-full max-w-7xl flex-col overflow-hidden rounded-xl border border-border-cad-bright bg-bg-panel shadow-2xl"
+        onClick={(event) => event.stopPropagation()}
+      >
         <header className="flex items-center justify-between border-b border-white/10 px-4 py-3">
           <div>
             <h2 className="font-mono text-sm font-bold tracking-widest text-text-cream">CRASHLENS COUNTERFACTUAL VERIFICATION</h2>

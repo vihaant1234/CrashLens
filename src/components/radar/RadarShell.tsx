@@ -11,7 +11,6 @@ import {
   ChevronLeft,
   Radio,
   Terminal,
-  ShieldCheck,
   Zap,
   XCircle,
   Flame,
@@ -46,6 +45,7 @@ export function RadarShell({
 }: RadarShellProps) {
   const [isInspectorOpen, setIsInspectorOpen] = useState<boolean>(true);
   const [isChaosMenuOpen, setIsChaosMenuOpen] = useState<boolean>(false);
+  const [comparisonScenario, setComparisonScenario] = useState<ScenarioId>('DB_POOL_LEAK');
 
   // Zustand atomic selectors
   const currentTick = useClusterStore((s) => s.currentTick);
@@ -54,6 +54,10 @@ export function RadarShell({
   const isSimulating = useClusterStore((s) => s.isSimulating);
   const simulationSpeed = useClusterStore((s) => s.simulationSpeed);
   const activeIncident = useClusterStore((s) => s.activeIncident);
+
+  useEffect(() => {
+    if (activeIncident) setComparisonScenario(activeIncident.scenarioId);
+  }, [activeIncident]);
 
   // Actions
   const startSimulation = useClusterStore((s) => s.startSimulation);
@@ -74,6 +78,18 @@ export function RadarShell({
   const lastInferenceDurationMs = usePredictionStore((s) => s.lastInferenceDurationMs);
   const serverKeyStatus = usePredictionStore((s) => s.keyRotatorStatus);
   const setKeyRotatorStatus = usePredictionStore((s) => s.setKeyRotatorStatus);
+
+  useEffect(() => {
+    if (!isChaosMenuOpen && !showComparison) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsChaosMenuOpen(false);
+        setShowComparison(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isChaosMenuOpen, setShowComparison, showComparison]);
 
   // Key Rotator status (read-only, refreshed on each render tick)
   const keyRotator = getKeyRotator();
@@ -123,10 +139,6 @@ export function RadarShell({
   const predictedRootP99 = activePrediction?.rootCauseService
     ? activeSnapshot?.nodes[activePrediction.rootCauseService]?.metrics.p99Ms ?? 0
     : 0;
-  const selectedNodeTelemetry = selectedServiceId && activeSnapshot
-    ? activeSnapshot.nodes[selectedServiceId]
-    : null;
-
   // Root cause service from active incident
   const rootCauseServiceId = activePrediction?.rootCauseService ?? activeIncident?.config.rootCauseService ?? null;
 
@@ -293,7 +305,9 @@ export function RadarShell({
           <button
             type="button"
             onClick={() => setShowComparison(true)}
-            className="hidden items-center gap-1.5 rounded border border-accent-amber/40 bg-accent-amber/10 px-2 py-1 font-mono text-[9px] font-semibold text-accent-amber transition hover:bg-accent-amber/20 disabled:cursor-not-allowed disabled:opacity-40 sm:flex"
+            aria-label="Open saved versus crashed timeline"
+            title="Open the DB pool leak counterfactual timeline"
+            className="hidden items-center gap-1.5 rounded border border-accent-amber/40 bg-accent-amber/10 px-2 py-1 font-mono text-[9px] font-semibold text-accent-amber transition hover:bg-accent-amber/20 sm:flex"
           >
             ⚖ SAVED VS CRASHED TIMELINE
           </button>
@@ -324,7 +338,10 @@ export function RadarShell({
               </div>
               <button
                 type="button"
-                onClick={clearIncident}
+                onClick={() => {
+                  clearIncident();
+                  setIsChaosMenuOpen(false);
+                }}
                 className="flex items-center gap-1 rounded bg-radar-red/40 px-2.5 py-0.5 font-mono text-xs font-semibold text-white hover:bg-radar-red transition-colors"
               >
                 <XCircle className="h-3.5 w-3.5" />
@@ -486,8 +503,10 @@ export function RadarShell({
                           key={scenarioId}
                           type="button"
                           onClick={() => {
-                            injectIncident(scenarioId);
-                            setIsChaosMenuOpen(false);
+                          setComparisonScenario(scenarioId);
+                          injectIncident(scenarioId);
+                          setShowComparison(false);
+                          setIsChaosMenuOpen(false);
                           }}
                           className={`flex flex-col rounded p-2 text-left transition-colors ${
                             isCurrent
@@ -526,6 +545,7 @@ export function RadarShell({
           <button
             type="button"
             onClick={() => setIsInspectorOpen(!isInspectorOpen)}
+            aria-label={isInspectorOpen ? 'Collapse inspector drawer' : 'Expand inspector drawer'}
             className="flex h-10 w-full items-center justify-between border-b border-border-cad bg-bg-card/70 px-2.5 font-mono text-xs text-text-muted hover:text-text-cream"
           >
             {isInspectorOpen ? (
@@ -603,26 +623,6 @@ export function RadarShell({
                     </div>
                   </div>
 
-                  {/* AI Recovery Advisor Placeholder */}
-                  <div className="rounded-lg border border-accent-cyan/30 bg-accent-cyan/5 p-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <ShieldCheck className="h-4 w-4 text-accent-cyan" />
-                        <span className="font-mono text-xs font-semibold text-accent-cyan">
-                          SYSTEM 1 ADVISOR
-                        </span>
-                      </div>
-                      <span className="font-mono text-[10px] text-text-muted">
-                        {activeIncident ? 'ANOMALY DETECTED' : 'STANDBY'}
-                      </span>
-                    </div>
-                    <p className="font-mono text-[11px] leading-relaxed text-text-muted">
-                      {activeIncident
-                        ? `Impending breach triggered by ${activeIncident.config.rootCauseService}. System 1 reflexive engine will isolate blast radius in < 400ms.`
-                        : 'Dual-tier failure prediction engine listening to 1Hz vector stream. Click any node to inspect live telemetry and sparklines.'}
-                    </p>
-                  </div>
-
                   {/* Cluster Nodes Quick Index */}
                   <div className="rounded-lg border border-border-cad bg-bg-card/40 p-3 space-y-2">
                     <div className="flex items-center justify-between border-b border-border-cad/60 pb-1">
@@ -640,10 +640,12 @@ export function RadarShell({
                         const p99 = tele?.metrics.p99Ms ?? node.baselines.p99Ms;
                         const status = tele?.status ?? 'HEALTHY';
                         return (
-                          <div
+                          <button
+                            type="button"
                             key={node.id}
                             onClick={() => selectAndOpenService(isSelected ? null : node.id)}
-                            className={`flex justify-between py-1 px-1.5 rounded cursor-pointer transition-colors ${
+                            aria-label={`${isSelected ? 'Close inspector for' : 'Inspect'} ${node.name}`}
+                            className={`flex w-full justify-between py-1 px-1.5 rounded text-left cursor-pointer transition-colors ${
                               isSelected
                                 ? 'bg-accent-amber/20 text-accent-amber'
                                 : 'hover:bg-white/5 text-text-muted'
@@ -661,7 +663,7 @@ export function RadarShell({
                             >
                               {p99}ms
                             </span>
-                          </div>
+                          </button>
                         );
                       })}
                     </div>
@@ -679,9 +681,9 @@ export function RadarShell({
           )}
         </aside>
       </div>
-      {showComparison && activeIncident && (
+      {showComparison && (
         <SavedVsCrashedViewer
-          scenarioId={activeIncident.scenarioId}
+          scenarioId={comparisonScenario}
           onClose={() => setShowComparison(false)}
         />
       )}
